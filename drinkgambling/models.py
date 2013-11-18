@@ -39,6 +39,8 @@ class Blackjack(Base):
     canDouble = Column(Integer)
     canInsurance = Column(Integer)
     canSurrender = Column(Integer)
+    canIncrease = Column(Integer)
+    canDecrease = Column(Integer)
 
     def __init__(self, userId, shoe=[], playerCards=[], dealerCards=[]):
         self.userId = userId
@@ -55,6 +57,8 @@ class Blackjack(Base):
         self.canDouble = 0
         self.canInsurance = 0
         self.canSurrender = 0
+        self.canIncrease = 1
+        self.canDecrease = 1
 
     def __str__(self):
         string = "Blackjack: {" + str(self.id) + ": " 
@@ -66,7 +70,9 @@ class Blackjack(Base):
         string += str(self.canSplit) + "\nCanDouble: "
         string += str(self.canDouble) + "\nCanInsurance: "
         string += str(self.canInsurance) + "\nCanSurrender: "
-        string += str(self.canSurrender) + "\nPC: "
+        string += str(self.canSurrender) + "\nCanIncrease: "
+        string += str(self.canIncrease) + "\nCanDecrease: "
+        string += str(self.canDecrease) + "\nPC: "
         string += str(self.playerCards) + "\nDC: " 
         string += str(self.dealerCards) + "\nDS: "
         string += str(self.dealerScore) + "\nPS: "

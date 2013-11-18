@@ -2,19 +2,14 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" xmlns:tal="http://xml.zope.org/namespaces/tal">
 	<head>
 		<link rel="stylesheet" type="text/css" href="../static/style.css">
-		<!--<style>
-			.card {
-				background-image: url('../static/Cards/BlueBack.svg'); /*!important;*/
-				background-size: 300%;
-				width: 100px;
-				height: 150px;
-				background-position: center;
-			}
-		</style>--!>
 		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
 		
-		
 		<script type="text/javascript">
+			$(document).ready(function() {
+				//Initialize the page buttons
+				setButtons();
+			});
+
 			$(document).ready(function() {
 				$("#deal").click(function() {
 					$.ajax({
@@ -23,10 +18,14 @@
 						//data: {"contact_id": user_id},
 						cache: false,
 						success: function(result) {
+							setButtons(result);
+							
+							$('#shoe').html("");
+							
 							$('#deal').html("Dealt");
 							//$('#deal').unbind('click');
 							$('#cards').append(result['dealt'][0]);
-							
+								
 							//If the player got black jack
 							if(result['winner'] == -1){
 								$('#shoe').html("Player has Blackjack");
@@ -56,6 +55,7 @@
 					});
 				});
 			});
+			
 			$(document).ready(function() {
 				$("#stand").click(function() {
 					$.ajax({
@@ -63,6 +63,8 @@
 						url: "/stand",
 						cache: false,
 						success: function(result) {
+							setButtons(result);
+							
 							$('#stand').html("Stood");
 							//$('#stand').unbind('click');
 							var winner = result['winner'];
@@ -95,6 +97,7 @@
 					});
 				});
 			});
+			
 			$(document).ready(function() {
 				$("#hit").click(function() {
 					$.ajax({
@@ -102,6 +105,8 @@
 						url: "/hit",
 						cache: false,
 						success: function(result) {
+							setButtons(result);
+							
 							$('#hit').html("TapDat");
 							//$('#hit').unbind('click');
 							var pCards = result['playerCards'];
@@ -125,6 +130,78 @@
 					});
 				});
 			});
+
+			function setButtons(options){
+				console.log("In");
+				
+				//Handle Buttons
+				//Disable all first, then enable only allowed ones
+				console.log("Disable all");
+				$(":input").attr("disabled", true);
+				if(!options){	
+						$('#deal').removeAttr("disabled");
+						$('#betUp').removeAttr("disabled");
+						$('#betDown').removeAttr("disabled");
+						$('#deal').html("Deal");
+						$('#betUp').html("Increase Bet");
+						$('#betDown').html("Decrease Bet");
+					
+				}else{
+					if(options['canDeal'] == 1){
+						console.log("cDeal");
+						$('#deal').removeAttr("disabled");
+						$('#deal').html("Deal");
+					}
+					
+					if(options['canStand'] == 1){
+						console.log("cStand");
+						$('#stand').removeAttr("disabled");
+						$('#stand').html("Stand");
+					}
+
+					if(options['canHit'] == 1){
+						console.log("cHit");
+						$('#hit').removeAttr("disabled");
+						$('#hit').html("Hit");
+					}
+
+					if(options['canSplit'] == 1){
+						console.log("cSplit");
+						$('#split').removeAttr("disabled");
+						$('#split').html("Split");
+					}
+
+					if(options['canDouble'] == 1){
+						console.log("cDouble");
+						$('#double').removeAttr("disabled");
+						$('#double').html("Double");
+					}
+
+					if(options['canInsurance'] == 1){
+						console.log("cInsurance");
+						$('#insurance').removeAttr("disabled");
+						$('#insurance').html("Insurance");
+					}
+
+					if(options['canSurrender'] == 1){
+						console.log("cSurrender");
+						$('#surrender').removeAttr("disabled");
+						$('#surrender').html("Surrender");
+					}
+
+					if(options['canIncrease'] == 1){
+						console.log("cIncrease");
+						$('#betUp').removeAttr("disabled");
+						$('#betUp').html("Increase Bet");
+					}
+
+					if(options['canDecrease'] == 1){
+						console.log("cDecrease");
+						$('#betDown').removeAttr("disabled");
+						$('#betDown').html("Decrease Bet");
+					}
+				}
+			}
 		</script>
 		
 	
