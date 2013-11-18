@@ -1,0 +1,77 @@
+.card {
+    background-image: url('../static/Cards/BlueBack.svg'); /*!important;*/
+    background-size: 300%;
+    width: 100px;
+    height: 150px;
+    background-position: center;
+}
+
+.cardList{
+    width:100%;
+    float: left;
+    margin: 0 0 3em 0;
+    padding: 0;   
+    list-style-type: none;
+}
+
+.cardList li {
+    display: inline;
+    float: left;
+}
+
+.buttonList{
+    width:100%;
+    float: left;
+    padding: 0px;   
+    margin-top: 5px;
+    margin-bottom: 0px;
+    list-style-type: none;
+}
+
+.buttons {
+    margin: 0px;
+}
+
+.buttonList li {
+    display: inline;
+    float: left;
+}
+
+.buttonList button {
+    width: 95px;
+    margin-right: 5px;
+}
+
+body{
+    width: 75%;
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
