@@ -12,6 +12,9 @@
 
 			$(document).ready(function() {
 				$("#deal").click(function() {
+					//Turn all the buttons off while the server is thinking
+					disableAll();
+
 					$.ajax({
 						type: "POST",
 						url: "/deal",
@@ -19,6 +22,8 @@
 						cache: false,
 						success: function(result) {
 							setButtons(result);
+							
+							console.log("Deal");
 							
 							$('#shoe').html("");
 							
@@ -58,12 +63,17 @@
 			
 			$(document).ready(function() {
 				$("#stand").click(function() {
+					//Turn all the buttons off while the server is thinking
+					disableAll();
+
 					$.ajax({
 						type: "POST",
 						url: "/stand",
 						cache: false,
 						success: function(result) {
 							setButtons(result);
+							
+							console.log("Stand");
 							
 							$('#stand').html("Stood");
 							//$('#stand').unbind('click');
@@ -99,13 +109,37 @@
 			});
 			
 			$(document).ready(function() {
+				$("#split").click(function() {
+					//Turn all the buttons off while the server is thinking
+					disableAll();
+
+					$.ajax({
+						type: "POST",
+						url: "/split",
+						cache: false,
+						success: function(result) {
+							setButtons(result);
+							
+							$('#split').html("Split'd");
+
+							console.log("Split");
+						}
+					});
+				});
+			});
+			$(document).ready(function() {
 				$("#hit").click(function() {
+					//Turn all the buttons off while the server is thinking
+					disableAll();
+
 					$.ajax({
 						type: "POST",
 						url: "/hit",
 						cache: false,
 						success: function(result) {
 							setButtons(result);
+							
+							console.log("Hit");
 							
 							$('#hit').html("TapDat");
 							//$('#hit').unbind('click');
@@ -131,6 +165,60 @@
 				});
 			});
 
+			$(document).ready(function() {
+				$("#double").click(function() {
+					//Turn all the buttons off while the server is thinking
+					disableAll();
+
+					$.ajax({
+						type: "POST",
+						url: "/double",
+						cache: false,
+						success: function(result) {
+							setButtons(result);
+							
+							console.log("Double");
+							
+							$('#double').html("Dubbed");
+							//$('#double').unbind('click');
+							var pCards = result['playerCards'];
+							var dCards = result['dealerCards'];
+							var winner = result['winner'];
+
+
+							$('#player .cardList').html('');
+							
+							for(var i = 20; i-20 < pCards.length; i++){
+								var url = '../static/Cards/' + pCards[i-20] + '.svg';
+								
+								$('#player .cardList').append('<li><div id="cd' + i + '" class="card" style="background-image:url(\'' + url + '\');"></div></li>');
+							}
+							$('#player').append('</ul>');
+
+							console.log(pCards);
+							
+							//Trigger the stand function
+							if(winner == 1){
+								$('#shoe').html('You Bust!  Dealer wins!')
+								
+								//Reveal dealer cards if the player bust
+								$('#dealer .cardList').html('');
+								
+								for(var i = 10; i-10 < dCards.length; i++){
+									var url = '../static/Cards/' + dCards[i-10] + '.svg';
+									
+									$('#dealer .cardList').append('<li><div id="cd' + i + '" class="card" style="background-image:url(\'' + url + '\');"></div></li>');
+								}
+								$('#dealer').append('</ul>');
+
+							}else{
+								$('#stand').trigger("click");
+							}
+						}
+					});
+				});
+			});
+			
 			function setButtons(options){
 				console.log("In");
 				
@@ -202,6 +290,10 @@
 					}
 				}
 			}
+			
+			function disableAll(){
+				$(":input").attr("disabled", true);
+			}
 		</script>
 		
 	
@@ -209,8 +301,23 @@
 	
 	<body>
 		<div id="shoe">
-			${cards}
 	 	</div>	
+		
+		<!-- Dealer --!>
+		<div id="dealer">
+			<b><p class="cardHeading"> Dealers Cards:</p></b>
+			<ul class="cardList">
+
+			</ul>
+		</div>
+		
+		<!-- Player --!>
+		<div id="player">
+			<b><p class="cardHeading"> Players Cards:</p></b>
+			<ul class="cardList">
+
+			</ul>
+		</div>
 		
 		<div class="buttons">
 			<ul class="buttonList">
@@ -247,20 +354,5 @@
 				</li>
 			</ul>
 		</div>
-		
-		<!-- Dealer --!>
-		<div id="dealer">
-			<ul class="cardList">
-
-			</ul>
-		</div>
-		
-		<!-- Player --!>
-		<div id="player">
-			<ul class="cardList">
-
-			</ul>
-		</div>
-		
 	</body>
 </html>

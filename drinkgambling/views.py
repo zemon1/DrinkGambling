@@ -21,7 +21,240 @@ def shuffle(request):
     print "curBlk:", curBlk
     print "Shoe: ", type(curBlk.shoe) 
 
-    return {'cards': curBlk.shoe}
+    return {}
+
+@view_config(route_name='double', renderer='json')
+def double(request):
+    
+    #curUserName = "nick"
+    #curUserName = "jeid"
+    curUserName = "testAccount"
+    
+    #Get or make the current user/blackjack game
+    uAndB = getUserAndBlackjack(curUserName)
+    
+    curUser = uAndB[0]
+    curBlk = uAndB[1]
+
+    if not curBlk.canDouble:
+        #If you are trying to cheat, dealer wins.
+        print "Can't hit you cheating motherfucker"
+        
+        #Update the Blackjack table and json encode the strings
+        res = DBSession.query(Blackjack)\
+            .filter_by(id = curBlk.id)\
+            .update({"canDeal" : 1 
+                    , "canStand" : 0
+                    , "canHit" : 0
+                    , "canSplit" : 0
+                    , "canDouble" : 0
+                    , "canInsurance" : 0
+                    , "canSurrender" : 0
+                    , "canIncrease" : 1
+                    , "canDecrease" : 1
+                    })
+        
+        return {'winner' : 1, 'error' : "If you are found trying to cheat your privileges will be revoked."}
+    
+    print curBlk
+
+    #decode the JSON in the database
+    shoe = json.loads(curBlk.shoe)
+    pCards = json.loads(curBlk.playerCards)
+    dCards = json.loads(curBlk.dealerCards)
+    pScore = curBlk.playerScore
+    
+    #What is allowed to be done here
+    cDeal = 0
+    cStand = 0
+    cHit = 0
+    cSplit = 0
+    cDouble = 0
+    cInsurance = 0
+    cSurrender = 0
+    cIncrease = 0
+    cDecrease = 0
+           
+    winner = -2
+
+    card = shoe.pop()
+    pCards.append(card)
+    pScore = addCardToScore(pCards)    
+    
+
+    print "D - dCards:", dCards
+    print "D - Card:", card
+    print "D - pCards:", pCards
+    print "D - pScore:", pScore
+    
+    #If the player busts we want to reveal the dealer's hidden card
+    #   but if they didn't we want to send an empty array back to the client
+    #   so they can't cheat.
+    passDCards = []
+    
+    #if you bust, dealer wins
+    if pScore > 21:
+        winner = 1;
+        
+        passDCards = dCards
+
+        print "Flip Deal, Inc, Dec"
+        #Changes to what can be done
+        cDeal = 1
+        cIncrease = 1
+        cDecrease = 1
+
+        #Update the Blackjack table and json encode the strings
+        res = DBSession.query(Blackjack)\
+            .filter_by(id = curBlk.id)\
+            .update({"shoe" : json.dumps(shoe)
+                    , "playerCards" : json.dumps(pCards)
+                    #, "playerScore" : pScore
+                    , "playerScore" : 0
+                    , "canDeal" : cDeal 
+                    , "canStand" : cStand
+                    , "canHit" : cHit
+                    , "canSplit" : cSplit
+                    , "canDouble" : cDouble
+                    , "canInsurance" : cInsurance
+                    , "canSurrender" : cSurrender
+                    , "canIncrease" : cIncrease
+                    , "canDecrease" : cDecrease
+                    })
+    else:
+        print "Flip stand"
+        #Changes to what can be done
+        cStand = 1
+
+
+        #Update the Blackjack table and json encode the strings
+        res = DBSession.query(Blackjack)\
+            .filter_by(id = curBlk.id)\
+            .update({"shoe" : json.dumps(shoe)
+                    , "playerCards" : json.dumps(pCards)
+                    , "playerScore" : pScore
+                    , "canDeal" : cDeal 
+                    , "canStand" : cStand
+                    , "canHit" : cHit
+                    , "canSplit" : cSplit
+                    , "canDouble" : cDouble
+                    , "canInsurance" : cInsurance
+                    , "canSurrender" : cSurrender
+                    , "canIncrease" : cIncrease
+                    , "canDecrease" : cDecrease
+                    })
+    
+    #Result should be 1 meaning 1 row was effected
+    print res
+    
+    pNames = []
+    for card in pCards:
+        pNames.append(getCard(card))
+    
+    dNames = []
+    for card in passDCards:
+        dNames.append(getCard(card))
+     
+
+    #What is allowed to be done here
+    print "cDeal:", cDeal 
+    print "cStand:", cStand 
+    print "cHit:", cHit 
+    print "cSplit:", cSplit 
+    print "cDouble:", cDouble 
+    print "cInsurance:", cInsurance 
+    print "cSurrender:", cSurrender
+    print "cIncrease:", cIncrease 
+    print "cDecrease:", cDecrease
+    
+    return {"playerCards" : pNames
+            , "dealerCards" : dNames
+            , 'winner' : winner
+            , "canDeal" : cDeal 
+            , "canStand" : cStand
+            , "canHit" : cHit
+            , "canSplit" : cSplit
+            , "canDouble" : cDouble
+            , "canInsurance" : cInsurance
+            , "canSurrender" : cSurrender
+            , "canIncrease" : cIncrease
+            , "canDecrease" : cDecrease
+            }
+
+@view_config(route_name='split', renderer='json')
+def split(request):
+    
+    #curUserName = "nick"
+    #curUserName = "jeid"
+    curUserName = "testAccount"
+    
+    #Get or make the current user/blackjack game
+    uAndB = getUserAndBlackjack(curUserName)
+    
+    curUser = uAndB[0]
+    curBlk = uAndB[1]
+
+    if not curBlk.canSplit:
+        #If you are trying to cheat, dealer wins.
+        print "Can't hit you cheating motherfucker"
+        
+        #Update the Blackjack table and json encode the strings
+        res = DBSession.query(Blackjack)\
+            .filter_by(id = curBlk.id)\
+            .update({"canDeal" : 1 
+                    , "canStand" : 0
+                    , "canHit" : 0
+                    , "canSplit" : 0
+                    , "canDouble" : 0
+                    , "canInsurance" : 0
+                    , "canSurrender" : 0
+                    , "canIncrease" : 1
+                    , "canDecrease" : 1
+                    })
+        
+        return {'winner' : 1, 'error' : "If you are found trying to cheat your privileges will be revoked."}
+    
+    print curBlk
+
+    #decode the JSON in the database
+    shoe = json.loads(curBlk.shoe)
+    pCards = json.loads(curBlk.playerCards)
+    pScore = curBlk.playerScore
+    
+    #What is allowed to be done here
+    cDeal = 0
+    cStand = 0
+    cHit = 0
+    cSplit = 0
+    cDouble = 0
+    cInsurance = 0
+    cSurrender = 0
+    cIncrease = 0
+    cDecrease = 0
+            
+
+    #What is allowed to be done here
+    print "cDeal:", cDeal 
+    print "cStand:", cStand 
+    print "cHit:", cHit 
+    print "cSplit:", cSplit 
+    print "cDouble:", cDouble 
+    print "cInsurance:", cInsurance 
+    print "cSurrender:", cSurrender
+    print "cIncrease:", cIncrease 
+    print "cDecrease:", cDecrease
+    
+    return {"playerCards" : pNames, 'winner' : winner
+            , "canDeal" : cDeal 
+            , "canStand" : cStand
+            , "canHit" : cHit
+            , "canSplit" : cSplit
+            , "canDouble" : cDouble
+            , "canInsurance" : cInsurance
+            , "canSurrender" : cSurrender
+            , "canIncrease" : cIncrease
+            , "canDecrease" : cDecrease
+            }
 
 @view_config(route_name='stand', renderer='json')
 def stand(request):
@@ -82,7 +315,7 @@ def stand(request):
     
     for card in curDealerCards:
         print "S - B dScore:", dScore
-        dScore = addCardToScore(dScore, card, curDealerCards)
+        dScore = addCardToScore(curDealerCards)
         print "S - A dScore:", dScore
     
     print "-------------------------\n"
@@ -101,7 +334,7 @@ def stand(request):
         card = curShoe.pop()
         curDealerCards.append(card)
 
-        dScore = addCardToScore(dScore, card, curDealerCards)
+        dScore = addCardToScore(curDealerCards)
         
         print "S - Card:", card
         print "S - running dScore:", dScore
@@ -175,7 +408,7 @@ def stand(request):
     print "cIncrease:", cIncrease 
     print "cDecrease:", cDecrease
 
-    return {"cards": curShoe, "dealerCards" : dNames, "winner": winner
+    return {"dealerCards" : dNames, "winner": winner
             , "canDeal" : cDeal 
             , "canStand" : cStand
             , "canHit" : cHit
@@ -242,7 +475,7 @@ def hit(request):
 
     card = shoe.pop()
     pCards.append(card)
-    pScore = addCardToScore(pScore, card, pCards)    
+    pScore = addCardToScore(pCards)    
     
 
     print "H - Card:", card
@@ -264,7 +497,8 @@ def hit(request):
             .filter_by(id = curBlk.id)\
             .update({"shoe" : json.dumps(shoe)
                     , "playerCards" : json.dumps(pCards)
-                    , "playerScore" : pScore
+                    #, "playerScore" : pScore
+                    , "playerScore" : 0
                     , "canDeal" : cDeal 
                     , "canStand" : cStand
                     , "canHit" : cHit
@@ -318,7 +552,7 @@ def hit(request):
     print "cIncrease:", cIncrease 
     print "cDecrease:", cDecrease
     
-    return {"cards": shoe, "playerCards" : pNames, 'winner' : winner
+    return {"playerCards" : pNames, 'winner' : winner
             , "canDeal" : cDeal 
             , "canStand" : cStand
             , "canHit" : cHit
@@ -412,8 +646,7 @@ def dealCards(request):
         print "No Split"
 
     
-    for card in curPlayerCards:
-        pScore = addCardToScore(pScore, card, curPlayerCards)
+    pScore = addCardToScore(curPlayerCards)
     
     print "pScore:", pScore
     print curDealerCards
@@ -493,7 +726,7 @@ def dealCards(request):
     print "cIncrease:", cIncrease 
     print "cDecrease:", cDecrease
     
-    return {"cards": curShoe, 'dealt': deal, 'winner': winner
+    return {"dealt": deal, "winner": winner
             , "canDeal" : cDeal 
             , "canStand" : cStand
             , "canHit" : cHit
@@ -546,22 +779,22 @@ def getSuit(card):
     if suit == 4:
         return ["S", "Spades"]
 
-def addCardToScore(score, card, allCards):
-    hasAce = False
+def addCardToScore(cards):
+    aceCount = 0
+    score = 0 
     
-    for aCard in allCards:
-        if aCard%100 == 14:
-            hasAce = True
+    for card in cards:
+        value = getValue(card)
+        if card%100 == 14:
+            aceCount += 1
 
-    value = getValue(card)
-    
-    if (score + value) > 21 and hasAce:
-        if value == 11:
-            return score + 1
+        if (score + value) > 21 and aceCount > 0:
+                score = (score - 10) + value
+                aceCount -= 1
         else:
-            return (score - 10) + value
-    else:
-        return score + value
+            score += value
+
+    return score
 
 def getValue(card):
         value = card%100
