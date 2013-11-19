@@ -434,7 +434,7 @@ def dealCards(request):
             .filter_by(id = curBlk.id)\
             .update({"shoe" : json.dumps(curShoe)
                     , "playerCards" : json.dumps(curPlayerCards)
-                    , "playerScore" : pScore
+                    , "playerScore" : 0
                     , "dealerCards" : json.dumps(curDealerCards)
                     , "canDeal" : cDeal 
                     , "canStand" : cStand
