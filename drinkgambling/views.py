@@ -22,7 +22,6 @@ def shuffle(request):
     print "Shoe: ", type(curBlk.shoe) 
 
     return {}
-
 @view_config(route_name='double', renderer='json')
 def double(request):
     
@@ -171,6 +170,103 @@ def double(request):
             , "dealerCards" : dNames
             , 'winner' : winner
             , "canDeal" : cDeal 
+            , "canStand" : cStand
+            , "canHit" : cHit
+            , "canSplit" : cSplit
+            , "canDouble" : cDouble
+            , "canInsurance" : cInsurance
+            , "canSurrender" : cSurrender
+            , "canIncrease" : cIncrease
+            , "canDecrease" : cDecrease
+            }
+
+@view_config(route_name='surrender', renderer='json')
+def surrender(request):
+    
+    #curUserName = "nick"
+    #curUserName = "jeid"
+    curUserName = "testAccount"
+    
+    #Get or make the current user/blackjack game
+    uAndB = getUserAndBlackjack(curUserName)
+    
+    curUser = uAndB[0]
+    curBlk = uAndB[1]
+
+    if not curBlk.canSurrender:
+        #If you are trying to cheat, dealer wins.
+        print "Can't hit you cheating motherfucker"
+        
+        #Update the Blackjack table and json encode the strings
+        res = DBSession.query(Blackjack)\
+            .filter_by(id = curBlk.id)\
+            .update({"canDeal" : 1 
+                    , "canStand" : 0
+                    , "canHit" : 0
+                    , "canSplit" : 0
+                    , "canDouble" : 0
+                    , "canInsurance" : 0
+                    , "canSurrender" : 0
+                    , "canIncrease" : 1
+                    , "canDecrease" : 1
+                    })
+        
+        return {'winner' : 1, 'error' : "If you are found trying to cheat your privileges will be revoked."}
+    
+    print curBlk
+
+    #What is allowed to be done here
+    cDeal = 0
+    cStand = 0
+    cHit = 0
+    cSplit = 0
+    cDouble = 0
+    cInsurance = 0
+    cSurrender = 0
+    cIncrease = 0
+    cDecrease = 0
+
+    #FILL IN HERE
+    #give back half of their money
+    #/FILL IN HERE
+           
+    print "Flip Deal, Inc, Dec"
+    #Changes to what can be done
+    cDeal = 1
+    cIncrease = 1
+    cDecrease = 1
+
+    #Update the Blackjack table and json encode the strings
+    res = DBSession.query(Blackjack)\
+        .filter_by(id = curBlk.id)\
+        .update({"playerCards" : json.dumps([])
+                , "playerScore" : 0
+                , "canDeal" : cDeal 
+                , "canStand" : cStand
+                , "canHit" : cHit
+                , "canSplit" : cSplit
+                , "canDouble" : cDouble
+                , "canInsurance" : cInsurance
+                , "canSurrender" : cSurrender
+                , "canIncrease" : cIncrease
+                , "canDecrease" : cDecrease
+                })
+    
+    #Result should be 1 meaning 1 row was effected
+    print res
+    
+    #What is allowed to be done here
+    print "cDeal:", cDeal 
+    print "cStand:", cStand 
+    print "cHit:", cHit 
+    print "cSplit:", cSplit 
+    print "cDouble:", cDouble 
+    print "cInsurance:", cInsurance 
+    print "cSurrender:", cSurrender
+    print "cIncrease:", cIncrease 
+    print "cDecrease:", cDecrease
+    
+    return {"canDeal" : cDeal 
             , "canStand" : cStand
             , "canHit" : cHit
             , "canSplit" : cSplit

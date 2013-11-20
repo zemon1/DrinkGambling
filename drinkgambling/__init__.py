@@ -23,5 +23,6 @@ def main(global_config, **settings):
     config.add_route('stand', '/stand')
     config.add_route('split', '/split')
     config.add_route('double', '/double')
+    config.add_route('surrender', '/surrender')
     config.scan()
     return config.make_wsgi_app()

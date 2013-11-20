@@ -33,6 +33,7 @@
 								
 							//If the player got black jack
 							if(result['winner'] == -1){
+								resetLabels();
 								$('#shoe').html("Player has Blackjack");
 							}
 
@@ -102,6 +103,7 @@
 							}
 							$('#dealer').append('</ul>');
 
+							resetLabels();
 							console.log(dCards);
 						}
 					});
@@ -127,6 +129,30 @@
 					});
 				});
 			});
+
+			$(document).ready(function() {
+				$("#surrender").click(function() {
+					//Turn all the buttons off while the server is thinking
+					disableAll();
+
+					$.ajax({
+						type: "POST",
+						url: "/surrender",
+						cache: false,
+						success: function(result) {
+							setButtons(result);
+							
+							console.log("Surrender");
+							
+							$('#surrender').html("Frenchmen");
+							//$('#surrender').unbind('click');
+							
+							$('#shoe').html('You have surrendered.<br>For bowing down to your superior, we will give you half of your bet back!')
+						}
+					});
+				});
+			});
+
 			$(document).ready(function() {
 				$("#hit").click(function() {
 					//Turn all the buttons off while the server is thinking
@@ -147,6 +173,7 @@
 							var winner = result['winner'];
 
 							if(winner == 1){
+								resetLabels();
 								$('#shoe').html('You Bust!  Dealer wins!')
 							}
 
@@ -199,6 +226,7 @@
 							
 							//Trigger the stand function
 							if(winner == 1){
+								resetLabels();
 								$('#shoe').html('You Bust!  Dealer wins!')
 								
 								//Reveal dealer cards if the player bust
@@ -293,6 +321,18 @@
 			
 			function disableAll(){
 				$(":input").attr("disabled", true);
+			}
+			
+			function resetLabels(){
+						$('#deal').html("Deal");
+						$('#stand').html("Stand");
+						$('#hit').html("Hit");
+						$('#split').html("Split");
+						$('#double').html("Double");
+						$('#insurance').html("Insurance");
+						$('#surrender').html("Surrender");
+						$('#betUp').html("Increase Bet");
+						$('#betDown').html("Decrease Bet");
 			}
 		</script>
 		
