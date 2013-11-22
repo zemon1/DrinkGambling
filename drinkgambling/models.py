@@ -41,12 +41,14 @@ class Blackjack(Base):
     canSurrender = Column(Integer)
     canIncrease = Column(Integer)
     canDecrease = Column(Integer)
+    splitCount = Column(Integer)
+    splitFocus = Column(Integer)
 
-    def __init__(self, userId, shoe=[], playerCards=[], dealerCards=[]):
+    def __init__(self, userId):
         self.userId = userId
-        self.shoe = shoe
-        self.playerCards = playerCards
-        self.dealerCards = dealerCards
+        self.shoe = []
+        self.playerCards = [[], [], [], []]
+        self.dealerCards = []
         self.hiddenCard = 1 
         self.dealerScore = 0 
         self.playerScore = 0
@@ -59,6 +61,8 @@ class Blackjack(Base):
         self.canSurrender = 0
         self.canIncrease = 1
         self.canDecrease = 1
+        self.splitCount = 0
+        self.splitFocus = 0
 
     def __str__(self):
         string = "Blackjack: {" + str(self.id) + ": " 
@@ -76,7 +80,9 @@ class Blackjack(Base):
         string += str(self.playerCards) + "\nDC: " 
         string += str(self.dealerCards) + "\nDS: "
         string += str(self.dealerScore) + "\nPS: "
-        string += str(self.playerScore) + "\nHC: "
+        string += str(self.playerScore) + "\nSC: "
+        string += str(self.splitCount) + "\nSF: "
+        string += str(self.splitFocus) + "\nHC: "
         string += str(self.hiddenCard) + "}"
         return string
 

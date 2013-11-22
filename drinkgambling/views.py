@@ -458,7 +458,7 @@ def dealCards(request):
     
     #decode the JSON in the database
     curShoe = json.loads(curBlk.shoe)
-    curPlayerCards = json.loads(curBlk.playerCards)
+    curPlayerCards = getPCards(curBlk)
     curDealerCards = json.loads(curBlk.dealerCards)
     pScore = curBlk.playerScore
     
@@ -506,7 +506,7 @@ def dealCards(request):
     curBlk.shoe = curShoe 
     curBlk.dealerCards = curDealerCards 
     curBlk.playerScore = pScore
-    curBlk.playerCards = curPlayerCards 
+    putPCards(curBlk, curPlayerCards)
     
     #if the player has blackjack, they win
     if pScore == 21:
@@ -704,11 +704,11 @@ def verify(blk, field, type):
         return -1
 
 def getPCards(blk):
-    cards = blk.playerCards
+    cards = json.loads(blk.playerCards)
     return cards[blk.splitFocus]
     
 def putPCards(blk, cards):
-    allCards = blk.playerCards
+    allCards = json.loads(blk.playerCards)
     allCards[blk.splitFocus] = cards
     return allCards
 
@@ -748,8 +748,8 @@ def updateBlk(blk):
                 , "canSurrender" : blk.canSurrender
                 , "canIncrease" : blk.canIncrease
                 , "canDecrease" : blk.canDecrease
-                #, "splitCount" : blk.splitCount
-                #, "splitFocus" : blk.splitFocus
+                , "splitCount" : blk.splitCount
+                , "splitFocus" : blk.splitFocus
                 })
     return res 
 
@@ -765,6 +765,8 @@ def setFlags(blk):
     blk.canSurrender = 0
     blk.canIncrease = 0
     blk.canDecrease = 0
+    blk.splitCount = 0
+    blk.splitFocus = 0
     
     return blk
 
@@ -780,4 +782,6 @@ def printFlags(blk):
     print "cSurrender:", blk.canSurrender
     print "cIncrease:", blk.canIncrease 
     print "cDecrease:", blk.canDecrease
+    print "cSplitCount:", blk.splitCount
+    print "cSplitFocus:", blk.splitFocus
 
