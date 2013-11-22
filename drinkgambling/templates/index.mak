@@ -170,11 +170,24 @@
 							$('#hit').html("TapDat");
 							//$('#hit').unbind('click');
 							var pCards = result['playerCards'];
+							var dCards = result['dealerCards'];
 							var winner = result['winner'];
+
+							console.log("dCards: " + dCards);
 
 							if(winner == 1){
 								resetLabels();
 								$('#shoe').html('You Bust!  Dealer wins!')
+
+								//Reveal dealer cards if the player bust
+								$('#dealer .cardList').html('');
+								
+								for(var i = 10; i-10 < dCards.length; i++){
+									var url = '../static/Cards/' + dCards[i-10] + '.svg';
+									
+									$('#dealer .cardList').append('<li><div id="cd' + i + '" class="card" style="background-image:url(\'' + url + '\');"></div></li>');
+								}
+								$('#dealer').append('</ul>');
 							}
 
 							$('#player .cardList').html('');

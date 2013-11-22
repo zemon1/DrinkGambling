@@ -384,11 +384,13 @@ def hit(request):
     if pScore > 21:
         winner = 1;
         
+        dCards = json.loads(curBlk.dealerCards)
+        
         print "Flip Deal, Inc, Dec"
         #Changes to what can be done
         curBlk.canDeal = 1
         curBlk.canIncrease = 1
-        curBlk.cancDecrease = 1
+        curBlk.canDecrease = 1
 
         #Update the Blackjack table and json encode the strings
         res = updateBlk(curBlk)
@@ -400,6 +402,8 @@ def hit(request):
         curBlk.canHit = 1
         curBlk.canSurrender = 1
 
+        dCards = []
+        dNames = []
 
         #Update the Blackjack table and json encode the strings
         res = updateBlk(curBlk)
@@ -410,10 +414,18 @@ def hit(request):
     pNames = []
     for card in pCards:
         pNames.append(getCard(card))
+    
+    if len(dCards) > 0:
+        dNames = []
+        print "DCards:", dCards
+        for card in dCards:
+            print "Card:", card
+            dNames.append(getCard(card))
 
     printFlags(curBlk)
 
     return {"playerCards" : pNames, 'winner' : winner
+            , "dealerCards" : dNames
             , "canDeal" : curBlk.canDeal 
             , "canStand" : curBlk.canStand
             , "canHit" : curBlk.canHit
@@ -563,7 +575,8 @@ def fillShoe(black):
             shoe.extend(deck)
 
         random.shuffle(shoe)
-        black.shoe = json.dumps(shoe)
+        #black.shoe = json.dumps(shoe)
+        black.shoe = shoe
 
         DBSession.commit()
     else:
@@ -767,8 +780,4 @@ def printFlags(blk):
     print "cSurrender:", blk.canSurrender
     print "cIncrease:", blk.canIncrease 
     print "cDecrease:", blk.canDecrease
-   
-
-
-
 
